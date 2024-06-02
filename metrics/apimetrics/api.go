@@ -1,15 +1,16 @@
 package apimetrics
 
 import (
-	"github.com/vnworkday/go-metrics/metrics"
 	"time"
+
+	"github.com/vnworkday/go-metrics/metrics"
 )
 
 const (
-	ApiRequestHistogramName = "api_request_histogram"
-	ApiRequestHistogramDesc = "API Request Histogram"
-	ApiRequestCounterName   = "api_request_counter"
-	ApiRequestCounterDesc   = "API Request Counter"
+	APIRequestHistogramName = "api_request_histogram"
+	APIRequestHistogramDesc = "API Request Histogram"
+	APIRequestCounterName   = "api_request_counter"
+	APIRequestCounterDesc   = "API Request Counter"
 )
 
 type Metrics interface {
@@ -49,13 +50,13 @@ func New(name string, client metrics.Client, options ...MetricOption) (Metric, e
 		option(&m)
 	}
 
-	m.tags = append(m.tags, metrics.ApiTag(name))
+	m.tags = append(m.tags, metrics.APITag(name))
 
 	latency, err := client.GetHistogram(
-		ApiRequestHistogramName,
+		APIRequestHistogramName,
 		metrics.NewInstrumentOptions().
 			WithTags(m.tags...).
-			WithDesc(ApiRequestHistogramDesc),
+			WithDesc(APIRequestHistogramDesc),
 	)
 
 	if err != nil {
@@ -63,10 +64,10 @@ func New(name string, client metrics.Client, options ...MetricOption) (Metric, e
 	}
 
 	reqCounter, err := client.GetCounter(
-		ApiRequestCounterName,
+		APIRequestCounterName,
 		metrics.NewInstrumentOptions().
 			WithTags(m.tags...).
-			WithDesc(ApiRequestCounterDesc),
+			WithDesc(APIRequestCounterDesc),
 	)
 
 	if err != nil {

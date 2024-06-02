@@ -43,8 +43,15 @@ if [[ ${#bad_files[@]} -gt 1 ]]; then
   for file in "${bad_files[@]}"; do
     echo "  - $file"
   done
-  echo "🚫 Please run \"go run golang.org/x/tools/cmd/goimports -w -l\" on these files to fix their imports."
-  exit 1
+  # Read the auto-fix flag from the input. if it's set to "true" then we'll run goimports with the -w flag
+  # to automatically fix the import statements in the files that need it.
+  if [[ "$1" == "true" ]]; then
+    echo "🔧 Running goimports with the -w flag to automatically fix import statements."
+    go run golang.org/x/tools/cmd/goimports -w -l "${bad_files[@]}"
+  else
+    echo "🚫 Please run \"go run golang.org/x/tools/cmd/goimports -w -l\" on these files to fix their imports."
+    exit 1
+  fi
 fi
 
 echo "✅ All files have correct import statements."

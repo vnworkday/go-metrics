@@ -3,6 +3,8 @@ package metrics
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/pkg/errors"
 	"github.com/vnworkday/go-metrics/warnings"
 	"go.opentelemetry.io/otel/attribute"
@@ -10,7 +12,6 @@ import (
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/noop"
 	otelmetric "go.opentelemetry.io/otel/sdk/metric"
-	"time"
 )
 
 type OtelClient struct {

@@ -36,8 +36,8 @@ func DefaultConverter[T any](resp T, err error) Status {
 	return Success
 }
 
-// DefaultHttpStatusCodeConverter is an implementation of the Converter interface that returns a status based on the HTTP status code.
-func DefaultHttpStatusCodeConverter(statusCode int, err error) Status {
+// DefaultHTTPStatusCodeConverter is an implementation of the Converter interface that returns a status based on the HTTP status code.
+func DefaultHTTPStatusCodeConverter(statusCode int, err error) Status {
 	if statusCode >= 200 && statusCode < 300 {
 		return Success
 	} else if statusCode >= 300 && statusCode < 400 {

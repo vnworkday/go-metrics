@@ -1,9 +1,10 @@
 package metrics
 
 import (
+	"sync"
+
 	"github.com/vnworkday/go-metrics/common"
 	"github.com/vnworkday/go-metrics/warnings"
-	"sync"
 )
 
 const (

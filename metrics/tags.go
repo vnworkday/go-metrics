@@ -21,7 +21,7 @@ func StatusTag(status status.Status) Tag {
 	return NewTag("status", status.String())
 }
 
-func ApiTag(name string) Tag {
+func APITag(name string) Tag {
 	return NewTag("api", name)
 }
 
