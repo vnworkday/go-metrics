@@ -2,22 +2,23 @@ package apimetrics
 
 import (
 	"github.com/vnworkday/go-metrics/metrics"
-	"github.com/vnworkday/go-metrics/status"
+	"github.com/vnworkday/go-metrics/statuses"
+	"github.com/vnworkday/go-metrics/tags"
 )
 
 type ExecOption[T any] func(parameters *ExecParameters[T])
 
 type ExecParameters[T any] struct {
-	statusConverter      status.Converter[T]
+	statusConverter      statuses.StatusConverter[T]
 	errTypeConverter     metrics.ErrTypeConverter
-	tags                 []metrics.Tag
+	tags                 []tags.Tag
 	batchSizeCounterName string
 	latencyHistogramName string
 }
 
 func NewExecParameters[T any]() ExecParameters[T] {
 	return ExecParameters[T]{
-		statusConverter:      status.DefaultConverter[T],
+		statusConverter:      statuses.DefaultConverter[T],
 		errTypeConverter:     metrics.DefaultErrTypeConverter,
 		batchSizeCounterName: "batch_size_counter",
 		latencyHistogramName: "e2e_latency",
@@ -36,19 +37,19 @@ func WithErrTypeConverter(errTypeConverter metrics.ErrTypeConverter) ExecOption[
 	})
 }
 
-func WithStatusConverterWithResponse[T any](statusConverter status.Converter[T]) ExecOption[T] {
+func WithStatusConverterWithResponse[T any](statusConverter statuses.StatusConverter[T]) ExecOption[T] {
 	return func(parameters *ExecParameters[T]) {
 		parameters.statusConverter = statusConverter
 	}
 }
 
-func WithStatusConverter(converter func(error) status.Status) ExecOption[any] {
-	return WithStatusConverterWithResponse(func(_ any, err error) status.Status {
+func WithStatusConverter(converter func(error) statuses.Status) ExecOption[any] {
+	return WithStatusConverterWithResponse(func(_ any, err error) statuses.Status {
 		return converter(err)
 	})
 }
 
-func WithTags[T any](tags ...metrics.Tag) ExecOption[T] {
+func WithTags[T any](tags ...tags.Tag) ExecOption[T] {
 	return func(parameters *ExecParameters[T]) {
 		parameters.tags = append(parameters.tags, tags...)
 	}

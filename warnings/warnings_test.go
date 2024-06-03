@@ -16,35 +16,35 @@ func TestWarning(t *testing.T) {
 	}{
 		{
 			name:     "NewWarning",
-			warning:  newWarning("metric1", "message1"),
+			warning:  NewWarning("metric1", "message1"),
 			expected: "metric1, message1, empty tags",
 		},
 		{
 			name:     "WithTag",
-			warning:  newWarning("metric1", "message1").withTag("tag1", "value1"),
+			warning:  NewWarning("metric1", "message1").addTag("tag1", "value1"),
 			expected: "value1",
 		},
 		{
 			name:     "Metric",
-			warning:  newWarning("metric1", "message1"),
+			warning:  NewWarning("metric1", "message1"),
 			expected: "metric1",
 		},
 		{
 			name:     "Message",
-			warning:  newWarning("metric1", "message1"),
+			warning:  NewWarning("metric1", "message1"),
 			expected: "message1",
 		},
 		{
 			name:     "Tags",
-			warning:  newWarning("metric1", "message1").withTag("tag1", "value1"),
+			warning:  NewWarning("metric1", "message1").addTag("tag1", "value1"),
 			expected: "value1",
 		},
 		{
 			name: "String",
-			warning: newWarning("metric1", "message1").
-				withTag("tag1", "value1").
-				withTag("tag2", "value2").
-				withTag("tag3", "value3"),
+			warning: NewWarning("metric1", "message1").
+				addTag("tag1", "value1").
+				addTag("tag2", "value2").
+				addTag("tag3", "value3"),
 			expected: `metric="metric1" message="message1" label_name="tag1" label_value="value1" label_name="tag2" label_value="value2" label_name="tag3" label_value="value3"`,
 		},
 	}

@@ -1,10 +1,10 @@
-package metrics
+package units
 
 type Unit string
 
 const (
 	Dimensionless Unit = "1"
-	Bytes         Unit = "b"
+	Bytes         Unit = "by"
 	Millis        Unit = "ms"
 )
 
@@ -17,10 +17,8 @@ func (u Unit) Valid() bool {
 	}
 }
 
-var _ error = InvalidUnit{}
+type ErrUnitInvalid struct{}
 
-type InvalidUnit struct{}
-
-func (InvalidUnit) Error() string {
+func (ErrUnitInvalid) Error() string {
 	return "invalid unit"
 }

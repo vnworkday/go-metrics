@@ -1,5 +1,7 @@
 package metrics
 
+import "github.com/vnworkday/go-metrics/tags"
+
 type ConfigTag struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
@@ -21,14 +23,16 @@ func (c Config) isValid() bool {
 }
 
 // tags returns a list of Tag from the config that are valid (non-empty key and value).
-func (c Config) tags() []Tag {
-	tags := make([]Tag, 0, len(c.Tags))
+func (c Config) tags() []tags.Tag {
+	tagList := make([]tags.Tag, 0, len(c.Tags))
+
 	for _, tag := range c.Tags {
 		if tag.Key == "" || tag.Value == "" {
 			continue
 		}
 
-		tags = append(tags, NewTag(tag.Key, tag.Value))
+		tagList = append(tagList, tags.NewTag(tag.Key, tag.Value))
 	}
-	return tags
+
+	return tagList
 }

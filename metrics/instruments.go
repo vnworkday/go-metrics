@@ -1,18 +1,22 @@
 package metrics
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+	tags2 "github.com/vnworkday/go-metrics/tags"
+	"github.com/vnworkday/go-metrics/units"
+)
 
 type InstrumentOptions struct {
-	unit Unit
-	tags []Tag
+	unit units.Unit
+	tags []tags2.Tag
 	desc string
 }
 
-func (io InstrumentOptions) Unit() Unit {
+func (io InstrumentOptions) Unit() units.Unit {
 	return io.unit
 }
 
-func (io InstrumentOptions) Tags() []Tag {
+func (io InstrumentOptions) Tags() []tags2.Tag {
 	return io.tags
 }
 
@@ -32,13 +36,13 @@ func (io InstrumentOptions) clone() InstrumentOptions {
 	}
 }
 
-func (io InstrumentOptions) WithUnit(unit Unit) InstrumentOptions {
+func (io InstrumentOptions) WithUnit(unit units.Unit) InstrumentOptions {
 	clone := io.clone()
 	clone.unit = unit
 	return clone
 }
 
-func (io InstrumentOptions) WithTags(tags ...Tag) InstrumentOptions {
+func (io InstrumentOptions) WithTags(tags ...tags2.Tag) InstrumentOptions {
 	clone := io.clone()
 	clone.tags = append(clone.tags, tags...)
 	return clone
@@ -54,8 +58,8 @@ func (io InstrumentOptions) WithDesc(desc string) InstrumentOptions {
 // If more than one unit is specified, an error is returned.
 // If more than one description is specified, the last one is used.
 func MergeInstrumentOptions(options ...InstrumentOptions) (InstrumentOptions, error) {
-	var tags []Tag
-	var unit Unit
+	var tags []tags2.Tag
+	var unit units.Unit
 	var desc string
 
 	for _, option := range options {

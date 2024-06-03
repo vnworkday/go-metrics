@@ -1,6 +1,7 @@
 package apimetrics
 
 import (
+	"github.com/vnworkday/go-metrics/tags"
 	"time"
 
 	"github.com/vnworkday/go-metrics/metrics"
@@ -8,9 +9,9 @@ import (
 
 const (
 	APIRequestHistogramName = "api_request_histogram"
-	APIRequestHistogramDesc = "API Request Histogram"
+	APIRequestHistogramDesc = "APIName Request Histogram"
 	APIRequestCounterName   = "api_request_counter"
-	APIRequestCounterDesc   = "API Request Counter"
+	APIRequestCounterDesc   = "APIName Request Counter"
 )
 
 type Metrics interface {
@@ -25,7 +26,7 @@ type Metric struct {
 	name       string
 	latency    metrics.Histogram
 	reqCounter metrics.Counter
-	tags       []metrics.Tag
+	tags       []tags.Tag
 }
 
 func (m Metric) GetRequestCounter() metrics.Counter {
@@ -50,7 +51,7 @@ func New(name string, client metrics.Client, options ...MetricOption) (Metric, e
 		option(&m)
 	}
 
-	m.tags = append(m.tags, metrics.APITag(name))
+	m.tags = append(m.tags, tags.APIName(name))
 
 	latency, err := client.GetHistogram(
 		APIRequestHistogramName,

@@ -3,6 +3,8 @@ package metrics
 import (
 	"context"
 	"fmt"
+	"github.com/vnworkday/go-metrics/tags"
+	"github.com/vnworkday/go-metrics/units"
 	"time"
 
 	"github.com/pkg/errors"
@@ -18,8 +20,8 @@ type OtelClient struct {
 	config         Config
 	meter          metric.Meter
 	attrs          []attribute.KeyValue
-	warningHandler warnings.Handler
-	tagTracker     Tracker
+	warningHandler warnings.WarningHandler
+	tagCleaner     tags.TagCleaner
 }
 
 func (c OtelClient) RegisterMeter(metricName string, meter Meter, options ...InstrumentOptions) (Unregister, error) {
@@ -29,7 +31,11 @@ func (c OtelClient) RegisterMeter(metricName string, meter Meter, options ...Ins
 		return nil, err
 	}
 
-	otelUnit := asOtelUnit(metricName, mergeOption.Unit(), c.warningHandler)
+	otelUnit, err := units.ToOtelUnit(metricName, mergeOption.Unit())
+
+	if err != nil {
+		c.warningHandler(warnings.UnitInvalid(metricName, string(mergeOption.Unit())))
+	}
 
 	gauge, err := c.meter.Int64ObservableGauge(
 		metricName,
@@ -41,11 +47,11 @@ func (c OtelClient) RegisterMeter(metricName string, meter Meter, options ...Ins
 		return nil, errors.Wrapf(err, "failed to create observable gauge for metric %s", metricName)
 	}
 
-	cleanedTags := c.tagTracker.CleanTags(metricName, attributesToTags(appendTagsToAttributes(c.attrs, mergeOption.Tags()...)))
+	cleanedTags := c.tagCleaner.Clean(metricName, tags.ToTags(tags.AddTags(c.attrs, mergeOption.Tags()...)))
 
 	registration, err := c.meter.RegisterCallback(func(ctx context.Context, observer metric.Observer) error {
 		meteredValue := meter()
-		observer.ObserveInt64(gauge, int64(meteredValue), metric.WithAttributes(tagsToAttributes(cleanedTags)...))
+		observer.ObserveInt64(gauge, int64(meteredValue), metric.WithAttributes(tags.ToAttributes(cleanedTags)...))
 		return nil
 	}, gauge)
 
@@ -65,7 +71,12 @@ func (c OtelClient) GetCounter(metricName string, options ...InstrumentOptions) 
 		return nil, err
 	}
 
-	otelUnit := asOtelUnit(metricName, mergedOptions.Unit(), c.warningHandler)
+	otelUnit, err := units.ToOtelUnit(metricName, mergedOptions.Unit())
+
+	if err != nil {
+		c.warningHandler(warnings.UnitInvalid(metricName, string(mergedOptions.Unit())))
+	}
+
 	counter, err := c.meter.Int64Counter(
 		metricName,
 		metric.WithUnit(otelUnit),
@@ -76,7 +87,7 @@ func (c OtelClient) GetCounter(metricName string, options ...InstrumentOptions) 
 		return nil, errors.Wrapf(err, "failed to create counter for metric %s", metricName)
 	}
 
-	return newOtelCounter(metricName, counter, c.tagTracker, appendTagsToAttributes(c.attrs, mergedOptions.Tags()...)...), nil
+	return newOtelCounter(metricName, counter, c.tagCleaner, tags.AddTags(c.attrs, mergedOptions.Tags()...)...), nil
 }
 
 func (c OtelClient) GetHistogram(metricName string, options ...InstrumentOptions) (Histogram, error) {
@@ -86,7 +97,12 @@ func (c OtelClient) GetHistogram(metricName string, options ...InstrumentOptions
 		return nil, err
 	}
 
-	otelUnit := asOtelUnit(metricName, mergedOptions.Unit(), c.warningHandler)
+	otelUnit, err := units.ToOtelUnit(metricName, mergedOptions.Unit())
+
+	if err != nil {
+		c.warningHandler(warnings.UnitInvalid(metricName, string(mergedOptions.Unit())))
+	}
+
 	histogram, err := c.meter.Int64Histogram(
 		metricName,
 		metric.WithUnit(otelUnit),
@@ -97,7 +113,7 @@ func (c OtelClient) GetHistogram(metricName string, options ...InstrumentOptions
 		return nil, errors.Wrapf(err, "failed to create histogram for metric %s", metricName)
 	}
 
-	return newOtelHistogram(metricName, histogram, c.tagTracker, appendTagsToAttributes(c.attrs, mergedOptions.Tags()...)...), nil
+	return newOtelHistogram(metricName, histogram, c.tagCleaner, tags.AddTags(c.attrs, mergedOptions.Tags()...)...), nil
 }
 
 func (c OtelClient) GetUpDownCounter(metricName string, options ...InstrumentOptions) (UpDownCounter, error) {
@@ -107,7 +123,11 @@ func (c OtelClient) GetUpDownCounter(metricName string, options ...InstrumentOpt
 		return nil, err
 	}
 
-	otelUnit := asOtelUnit(metricName, mergedOptions.Unit(), c.warningHandler)
+	otelUnit, err := units.ToOtelUnit(metricName, mergedOptions.Unit())
+
+	if err != nil {
+		c.warningHandler(warnings.UnitInvalid(metricName, string(mergedOptions.Unit())))
+	}
 
 	upDownCounter, err := c.meter.Int64UpDownCounter(
 		metricName,
@@ -119,7 +139,7 @@ func (c OtelClient) GetUpDownCounter(metricName string, options ...InstrumentOpt
 		return nil, errors.Wrapf(err, "failed to create up down counter for metric %s", metricName)
 	}
 
-	return newOtelUpDownCounter(metricName, upDownCounter, c.tagTracker, appendTagsToAttributes(c.attrs, mergedOptions.Tags()...)...), nil
+	return newOtelUpDownCounter(metricName, upDownCounter, c.tagCleaner, tags.AddTags(c.attrs, mergedOptions.Tags()...)...), nil
 }
 
 func (c OtelClient) GetGauge(metricName string, options ...InstrumentOptions) (Gauge, error) {
@@ -129,7 +149,12 @@ func (c OtelClient) GetGauge(metricName string, options ...InstrumentOptions) (G
 		return nil, err
 	}
 
-	otelUnit := asOtelUnit(metricName, mergedOptions.Unit(), warnings.DefaultWarningHandler())
+	otelUnit, err := units.ToOtelUnit(metricName, mergedOptions.Unit())
+
+	if err != nil {
+		c.warningHandler(warnings.UnitInvalid(metricName, string(mergedOptions.Unit())))
+	}
+
 	gauge, err := c.meter.Int64Gauge(
 		metricName,
 		metric.WithUnit(otelUnit),
@@ -140,7 +165,7 @@ func (c OtelClient) GetGauge(metricName string, options ...InstrumentOptions) (G
 		return nil, errors.Wrapf(err, "failed to create gauge for metric %s", metricName)
 	}
 
-	return newOtelGauge(metricName, gauge, c.tagTracker, appendTagsToAttributes(c.attrs, mergedOptions.Tags()...)...), nil
+	return newOtelGauge(metricName, gauge, c.tagCleaner, tags.AddTags(c.attrs, mergedOptions.Tags()...)...), nil
 }
 
 type OtelClientOption = func(*OtelClient)
@@ -171,8 +196,8 @@ func NewOtelClient(ctx context.Context, opts ...OtelClientOption) (OtelClient, e
 		c.meter = meter
 	}
 
-	if c.tagTracker == nil {
-		c.tagTracker = NewTracker(c.warningHandler)
+	if c.tagCleaner == nil {
+		c.tagCleaner = tags.NewTagCleaner(c.warningHandler)
 	}
 
 	return c, nil
@@ -214,7 +239,6 @@ func newAdhocMeter(ctx context.Context, host string, port int) (metric.Meter, er
 func WithConfig(config Config) OtelClientOption {
 	return func(c *OtelClient) {
 		c.config = config
-		tags := config.tags()
-		c.attrs = append(c.attrs, tagsToAttributes(tags)...)
+		c.attrs = append(c.attrs, tags.ToAttributes(config.tags())...)
 	}
 }

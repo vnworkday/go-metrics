@@ -2,8 +2,7 @@ package apimetrics
 
 import (
 	"context"
-
-	"github.com/vnworkday/go-metrics/metrics"
+	"github.com/vnworkday/go-metrics/tags"
 )
 
 type empty struct{}
@@ -13,7 +12,7 @@ func collectParams[T any](opName string, options ...ExecOption[T]) ExecParameter
 	for _, option := range options {
 		option(&params)
 	}
-	params.tags = append(params.tags, metrics.OpTag(opName))
+	params.tags = append(params.tags, tags.Op(opName))
 	return params
 }
 
@@ -23,9 +22,9 @@ func collectParams[T any](opName string, options ...ExecOption[T]) ExecParameter
 // - A histogram for the latency of the request.
 // The following tags are always present in the metrics:
 // - The operation name.
-// - The status of the request.
+// - The statuses of the request.
 // - The error type of the request (if an error occurred).
-// The status and error type are determined by the statusConverter and errTypeConverter functions passed in the options.
+// The statuses and error type are determined by the statusConverter and errTypeConverter functions passed in the options.
 //
 // @see DoRequestWithResponse for more details.
 func DoRequest(
@@ -50,9 +49,9 @@ func DoRequest(
 // - A histogram for the latency of the request.
 // The following tags are always present in the metrics:
 // - The operation name.
-// - The status of the request.
+// - The statuses of the request.
 // - The error type of the request (if an error occurred).
-// The status and error type are determined by the statusConverter and errTypeConverter functions passed in the options.
+// The statuses and error type are determined by the statusConverter and errTypeConverter functions passed in the options.
 func DoRequestWithResponse[T any](
 	ctx context.Context,
 	metric Metrics,
@@ -68,20 +67,20 @@ func DoRequestWithResponse[T any](
 	resp, err := makeRequest()
 	latency := metric.UtcNow().Sub(startTime)
 
-	var tags []metrics.Tag
+	var metricTags []tags.Tag
 
 	if err != nil {
-		tags = append(params.tags,
-			metrics.StatusTag(params.statusConverter(resp, err)),
-			metrics.ErrorTypeTag(params.errTypeConverter(err)),
+		metricTags = append(params.tags,
+			tags.APIStatus(params.statusConverter(resp, err)),
+			tags.ErrorType(params.errTypeConverter(err)),
 		)
 	} else {
-		tags = append(params.tags,
-			metrics.StatusTag(params.statusConverter(resp, nil)),
+		metricTags = append(params.tags,
+			tags.APIStatus(params.statusConverter(resp, nil)),
 		)
 	}
 
-	metric.GetLatencyHistogram().Record(ctx, int(latency.Milliseconds()), tags...)
+	metric.GetLatencyHistogram().Record(ctx, int(latency.Milliseconds()), metricTags...)
 
 	return resp, err
 }
