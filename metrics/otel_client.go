@@ -3,9 +3,10 @@ package metrics
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/vnworkday/go-metrics/tags"
 	"github.com/vnworkday/go-metrics/units"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/vnworkday/go-metrics/warnings"
