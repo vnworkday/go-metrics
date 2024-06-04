@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	testutil "github.com/vnworkday/go-metrics/internal/tests"
 )
 
 func TestWarning(t *testing.T) {
@@ -63,7 +64,7 @@ func TestWarning(t *testing.T) {
 			case "Tags":
 				assertThat.Equal(tt.expected, tt.warning.Tags()["tag1"])
 			case "String":
-				assertThat.Equal(tt.expected, tt.warning.String())
+				assertThat.True(testutil.MapsEqual(testutil.StringToMap(tt.expected), testutil.StringToMap(tt.warning.String())))
 			}
 		})
 	}

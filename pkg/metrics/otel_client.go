@@ -3,13 +3,13 @@ package metrics
 import (
 	"context"
 	"fmt"
+	"github.com/vnworkday/go-metrics/pkg/tags"
+	"github.com/vnworkday/go-metrics/pkg/units"
+	"github.com/vnworkday/go-metrics/pkg/warnings"
 	"time"
 
-	"github.com/vnworkday/go-metrics/tags"
-	"github.com/vnworkday/go-metrics/units"
-
 	"github.com/pkg/errors"
-	"github.com/vnworkday/go-metrics/warnings"
+
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/metric"

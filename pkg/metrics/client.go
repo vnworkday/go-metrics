@@ -2,8 +2,7 @@ package metrics
 
 import (
 	"context"
-
-	"github.com/vnworkday/go-metrics/tags"
+	"github.com/vnworkday/go-metrics/pkg/tags"
 )
 
 type Meter = func() int

@@ -3,7 +3,7 @@ package metrics
 import (
 	"context"
 
-	t "github.com/vnworkday/go-metrics/tags"
+	t "github.com/vnworkday/go-metrics/pkg/tags"
 
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"

@@ -1,8 +1,8 @@
 package metrics
 
 import (
-	"github.com/vnworkday/go-metrics/statuses"
-	"github.com/vnworkday/go-metrics/tags"
+	"github.com/vnworkday/go-metrics/pkg/statuses"
+	"github.com/vnworkday/go-metrics/pkg/tags"
 )
 
 type ExecOption[T any] func(parameters *ExecParameters[T])

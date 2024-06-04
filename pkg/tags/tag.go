@@ -2,10 +2,9 @@ package tags
 
 import (
 	"fmt"
+	"github.com/vnworkday/go-metrics/internal/common"
+	"github.com/vnworkday/go-metrics/pkg/warnings"
 	"sync"
-
-	"github.com/vnworkday/go-metrics/common"
-	"github.com/vnworkday/go-metrics/warnings"
 )
 
 const (

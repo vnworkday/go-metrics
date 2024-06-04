@@ -1,10 +1,9 @@
 package queuemetrics
 
 import (
+	"github.com/vnworkday/go-metrics/pkg/metrics"
+	"github.com/vnworkday/go-metrics/pkg/tags"
 	"time"
-
-	"github.com/vnworkday/go-metrics/metrics"
-	"github.com/vnworkday/go-metrics/tags"
 )
 
 const (

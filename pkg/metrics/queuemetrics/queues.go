@@ -2,10 +2,9 @@ package queuemetrics
 
 import (
 	"context"
-
-	"github.com/vnworkday/go-metrics/common"
-	"github.com/vnworkday/go-metrics/metrics"
-	"github.com/vnworkday/go-metrics/tags"
+	"github.com/vnworkday/go-metrics/internal/common"
+	"github.com/vnworkday/go-metrics/pkg/metrics"
+	"github.com/vnworkday/go-metrics/pkg/tags"
 )
 
 func collectParams[T any](queueType, queueRole string, options ...metrics.ExecOption[T]) metrics.ExecParameters[T] {

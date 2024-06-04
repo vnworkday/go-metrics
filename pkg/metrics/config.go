@@ -1,6 +1,6 @@
 package metrics
 
-import "github.com/vnworkday/go-metrics/tags"
+import "github.com/vnworkday/go-metrics/pkg/tags"
 
 type ConfigTag struct {
 	Key   string `json:"key"`

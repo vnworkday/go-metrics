@@ -2,13 +2,13 @@ package metrics
 
 import (
 	"github.com/pkg/errors"
-	tags2 "github.com/vnworkday/go-metrics/tags"
-	"github.com/vnworkday/go-metrics/units"
+	"github.com/vnworkday/go-metrics/pkg/tags"
+	"github.com/vnworkday/go-metrics/pkg/units"
 )
 
 type InstrumentOptions struct {
 	unit units.Unit
-	tags []tags2.Tag
+	tags []tags.Tag
 	desc string
 }
 
@@ -16,7 +16,7 @@ func (io InstrumentOptions) Unit() units.Unit {
 	return io.unit
 }
 
-func (io InstrumentOptions) Tags() []tags2.Tag {
+func (io InstrumentOptions) Tags() []tags.Tag {
 	return io.tags
 }
 
@@ -42,7 +42,7 @@ func (io InstrumentOptions) WithUnit(unit units.Unit) InstrumentOptions {
 	return clone
 }
 
-func (io InstrumentOptions) WithTags(tags ...tags2.Tag) InstrumentOptions {
+func (io InstrumentOptions) WithTags(tags ...tags.Tag) InstrumentOptions {
 	clone := io.clone()
 	clone.tags = append(clone.tags, tags...)
 	return clone
@@ -58,12 +58,12 @@ func (io InstrumentOptions) WithDesc(desc string) InstrumentOptions {
 // If more than one unit is specified, an error is returned.
 // If more than one description is specified, the last one is used.
 func MergeInstrumentOptions(options ...InstrumentOptions) (InstrumentOptions, error) {
-	var tags []tags2.Tag
+	var tagLst []tags.Tag
 	var unit units.Unit
 	var desc string
 
 	for _, option := range options {
-		tags = append(tags, option.Tags()...)
+		tagLst = append(tagLst, option.Tags()...)
 		desc = option.Desc()
 		if option.Unit() != unit {
 			if unit != "" {
@@ -75,7 +75,7 @@ func MergeInstrumentOptions(options ...InstrumentOptions) (InstrumentOptions, er
 	}
 	return InstrumentOptions{
 		unit: unit,
-		tags: tags,
+		tags: tagLst,
 		desc: desc,
 	}, nil
 }

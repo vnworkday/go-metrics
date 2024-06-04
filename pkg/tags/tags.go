@@ -1,6 +1,6 @@
 package tags
 
-import "github.com/vnworkday/go-metrics/statuses"
+import "github.com/vnworkday/go-metrics/pkg/statuses"
 
 // =============================================================================
 // This file contains the functions to create common tags that are not specific to any domain.
