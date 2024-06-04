@@ -17,7 +17,6 @@ func MapsEqual(m1, m2 map[string]struct{}) bool {
 	}
 	for k := range m1 {
 		if _, ok := m2[k]; !ok {
-			println("key not found: ", k)
 			return false
 		}
 	}
