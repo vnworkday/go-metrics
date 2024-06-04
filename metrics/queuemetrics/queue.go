@@ -1,39 +1,38 @@
-package apimetrics
+package queuemetrics
 
 import (
 	"time"
 
-	"github.com/vnworkday/go-metrics/tags"
-
 	"github.com/vnworkday/go-metrics/metrics"
+	"github.com/vnworkday/go-metrics/tags"
 )
 
 const (
-	APIRequestHistogramName = "api_request_histogram"
-	APIRequestHistogramDesc = "API Request Histogram"
-	APIRequestCounterName   = "api_request_counter"
-	APIRequestCounterDesc   = "API Request Counter"
+	QueueMessageLatencyHistogramName = "queue_message_latency_histogram"
+	QueueMessageLatencyHistogramDesc = "Queue Message Latency History"
+	QueueMessageCounterName          = "queue_message_counter"
+	QueueMessageCounterDesc          = "Queue Message Counter"
 )
 
-type APIMetrics interface {
+type QueueMetrics interface {
 	metrics.Metrics
-	GetRequestCounter() metrics.Counter
+	GetMessageCounter() metrics.Counter
 }
 
 type Metric struct {
 	metrics.Client
 	name       string
 	latency    metrics.Histogram
-	reqCounter metrics.Counter
+	msgCounter metrics.Counter
 	tags       []tags.Tag
-}
-
-func (m Metric) GetRequestCounter() metrics.Counter {
-	return m.reqCounter
 }
 
 func (m Metric) GetLatencyHistogram() metrics.Histogram {
 	return m.latency
+}
+
+func (m Metric) GetMessageCounter() metrics.Counter {
+	return m.msgCounter
 }
 
 func (m Metric) UtcNow() time.Time {
@@ -50,24 +49,24 @@ func New(name string, client metrics.Client, options ...MetricOption) (Metric, e
 		option(&m)
 	}
 
-	m.tags = append(m.tags, tags.APIName(name))
+	m.tags = append(m.tags, tags.QueueName(name))
 
 	latency, err := client.GetHistogram(
-		APIRequestHistogramName,
+		QueueMessageLatencyHistogramName,
 		metrics.NewInstrumentOptions().
 			WithTags(m.tags...).
-			WithDesc(APIRequestHistogramDesc),
+			WithDesc(QueueMessageLatencyHistogramDesc),
 	)
 
 	if err != nil {
 		return Metric{}, err
 	}
 
-	reqCounter, err := client.GetCounter(
-		APIRequestCounterName,
+	msgCounter, err := client.GetCounter(
+		QueueMessageCounterName,
 		metrics.NewInstrumentOptions().
 			WithTags(m.tags...).
-			WithDesc(APIRequestCounterDesc),
+			WithDesc(QueueMessageCounterDesc),
 	)
 
 	if err != nil {
@@ -75,7 +74,7 @@ func New(name string, client metrics.Client, options ...MetricOption) (Metric, e
 	}
 
 	m.latency = latency
-	m.reqCounter = reqCounter
+	m.msgCounter = msgCounter
 
 	return m, nil
 }

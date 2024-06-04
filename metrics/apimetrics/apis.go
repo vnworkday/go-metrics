@@ -3,17 +3,18 @@ package apimetrics
 import (
 	"context"
 
+	"github.com/vnworkday/go-metrics/common"
+	"github.com/vnworkday/go-metrics/metrics"
+
 	"github.com/vnworkday/go-metrics/tags"
 )
 
-type empty struct{}
-
-func collectParams[T any](opName string, options ...ExecOption[T]) ExecParameters[T] {
-	params := NewExecParameters[T]()
+func collectParams[T any](opName string, options ...metrics.ExecOption[T]) metrics.ExecParameters[T] {
+	params := metrics.NewExecParameters[T]()
 	for _, option := range options {
 		option(&params)
 	}
-	params.tags = append(params.tags, tags.Op(opName))
+	params.Tags = append(params.Tags, tags.Op(opName))
 	return params
 }
 
@@ -30,13 +31,13 @@ func collectParams[T any](opName string, options ...ExecOption[T]) ExecParameter
 // @see DoRequestWithResponse for more details.
 func DoRequest(
 	ctx context.Context,
-	metric Metrics,
+	metric APIMetrics,
 	opName string,
 	makeRequestWoResponse func() error,
-	options ...ExecOption[any],
+	options ...metrics.ExecOption[any],
 ) error {
 	makeRequest := func() (interface{}, error) {
-		return empty{}, makeRequestWoResponse()
+		return common.Empty{}, makeRequestWoResponse()
 	}
 
 	_, err := DoRequestWithResponse(ctx, metric, opName, makeRequest, options...)
@@ -55,14 +56,14 @@ func DoRequest(
 // The statuses and error type are determined by the statusConverter and errTypeConverter functions passed in the options.
 func DoRequestWithResponse[T any](
 	ctx context.Context,
-	metric Metrics,
+	metric APIMetrics,
 	opName string,
 	makeRequest func() (T, error),
-	options ...ExecOption[T],
+	options ...metrics.ExecOption[T],
 ) (T, error) {
 	params := collectParams(opName, options...)
 
-	metric.GetRequestCounter().Add(ctx, 1, params.tags...)
+	metric.GetRequestCounter().Add(ctx, 1, params.Tags...)
 
 	startTime := metric.UtcNow()
 	resp, err := makeRequest()
@@ -71,13 +72,13 @@ func DoRequestWithResponse[T any](
 	var metricTags []tags.Tag
 
 	if err != nil {
-		metricTags = append(params.tags,
-			tags.APIStatus(params.statusConverter(resp, err)),
-			tags.ErrorType(params.errTypeConverter(err)),
+		metricTags = append(params.Tags,
+			tags.Status(params.StatusConverter(resp, err)),
+			tags.ErrorType(params.ErrTypeConverter(err)),
 		)
 	} else {
-		metricTags = append(params.tags,
-			tags.APIStatus(params.statusConverter(resp, nil)),
+		metricTags = append(params.Tags,
+			tags.Status(params.StatusConverter(resp, nil)),
 		)
 	}
 
