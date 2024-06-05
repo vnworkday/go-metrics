@@ -22,7 +22,7 @@ generate:
 
 ## test: Run tests using go test with coverage report
 test:
-	@go test ./... -covermode=count
+	@"$(CURDIR)/scripts/unit-test.sh"
 
 ## staticcheck: Run static check using honnef.co/go/tools/cmd/staticcheck
 staticcheck:

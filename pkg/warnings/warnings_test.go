@@ -1,8 +1,9 @@
 package warnings
 
 import (
-	"github.com/vnworkday/go-metrics/internal/common"
 	"testing"
+
+	"github.com/vnworkday/go-metrics/internal/common"
 
 	"github.com/stretchr/testify/assert"
 )

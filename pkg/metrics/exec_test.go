@@ -1,11 +1,12 @@
 package metrics
 
 import (
+	"reflect"
+	"testing"
+
 	"github.com/pkg/errors"
 	"github.com/vnworkday/go-metrics/pkg/statuses"
 	"github.com/vnworkday/go-metrics/pkg/tags"
-	"reflect"
-	"testing"
 )
 
 func TestWithErrTypeConverter(t *testing.T) {

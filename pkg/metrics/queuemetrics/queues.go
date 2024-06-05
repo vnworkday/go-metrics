@@ -2,6 +2,8 @@ package queuemetrics
 
 import (
 	"context"
+	"time"
+
 	"github.com/vnworkday/go-metrics/internal/common"
 	"github.com/vnworkday/go-metrics/pkg/metrics"
 	"github.com/vnworkday/go-metrics/pkg/tags"
@@ -31,7 +33,7 @@ func collectParams[T any](queueType, queueRole string, options ...metrics.ExecOp
 // @see DoMessageWithResponse for more details.
 func DoMessage(
 	ctx context.Context,
-	metric QueueMetrics,
+	metric Client,
 	queueType, queueRole string,
 	processMessageWoResponse func() error,
 	options ...metrics.ExecOption[any],
@@ -57,7 +59,7 @@ func DoMessage(
 // The statuses and error type are determined by the statusConverter and errTypeConverter functions passed in the options.
 func DoMessageWithResponse[T any](
 	ctx context.Context,
-	metric QueueMetrics,
+	metric Client,
 	queueType, queueRole string,
 	processMessage func() (T, error),
 	options ...metrics.ExecOption[T],
@@ -66,9 +68,9 @@ func DoMessageWithResponse[T any](
 
 	metric.GetMessageCounter().Add(ctx, 1, params.Tags...)
 
-	start := metric.UtcNow()
+	start := time.Now().UTC()
 	resp, err := processMessage()
-	latency := metric.UtcNow().Sub(start)
+	latency := time.Now().UTC().Sub(start)
 
 	if err != nil {
 		params.Tags = append(params.Tags,

@@ -3,10 +3,11 @@ package metrics
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/vnworkday/go-metrics/pkg/tags"
 	"github.com/vnworkday/go-metrics/pkg/units"
 	"github.com/vnworkday/go-metrics/pkg/warnings"
-	"time"
 
 	"github.com/pkg/errors"
 
@@ -16,7 +17,7 @@ import (
 	otelmetric "go.opentelemetry.io/otel/sdk/metric"
 )
 
-type OtelClient struct {
+type OtelMetricProvider struct {
 	config         Config
 	meter          metric.Meter
 	attrs          []attribute.KeyValue
@@ -24,7 +25,7 @@ type OtelClient struct {
 	tagCleaner     tags.TagCleaner
 }
 
-func (c OtelClient) RegisterMeter(metricName string, meter Meter, options ...InstrumentOptions) (Unregister, error) {
+func (c OtelMetricProvider) RegisterMeter(metricName string, meter Meter, options ...InstrumentOptions) (Unregister, error) {
 	if metricName == "" {
 		return nil, errors.New("metric name is required")
 	}
@@ -69,7 +70,7 @@ func (c OtelClient) RegisterMeter(metricName string, meter Meter, options ...Ins
 	}, nil
 }
 
-func (c OtelClient) GetCounter(metricName string, options ...InstrumentOptions) (Counter, error) {
+func (c OtelMetricProvider) GetCounter(metricName string, options ...InstrumentOptions) (Counter, error) {
 	if metricName == "" {
 		return nil, errors.New("metric name is required")
 	}
@@ -100,7 +101,7 @@ func (c OtelClient) GetCounter(metricName string, options ...InstrumentOptions) 
 	return newOtelCounter(metricName, counter, c.tagCleaner, tags.AddTags(c.attrs, mergedOptions.Tags()...)...), nil
 }
 
-func (c OtelClient) GetHistogram(metricName string, options ...InstrumentOptions) (Histogram, error) {
+func (c OtelMetricProvider) GetHistogram(metricName string, options ...InstrumentOptions) (Histogram, error) {
 	if metricName == "" {
 		return nil, errors.New("metric name is required")
 	}
@@ -131,7 +132,7 @@ func (c OtelClient) GetHistogram(metricName string, options ...InstrumentOptions
 	return newOtelHistogram(metricName, histogram, c.tagCleaner, tags.AddTags(c.attrs, mergedOptions.Tags()...)...), nil
 }
 
-func (c OtelClient) GetUpDownCounter(metricName string, options ...InstrumentOptions) (UpDownCounter, error) {
+func (c OtelMetricProvider) GetUpDownCounter(metricName string, options ...InstrumentOptions) (UpDownCounter, error) {
 	if metricName == "" {
 		return nil, errors.New("metric name is required")
 	}
@@ -162,7 +163,7 @@ func (c OtelClient) GetUpDownCounter(metricName string, options ...InstrumentOpt
 	return newOtelUpDownCounter(metricName, upDownCounter, c.tagCleaner, tags.AddTags(c.attrs, mergedOptions.Tags()...)...), nil
 }
 
-func (c OtelClient) GetGauge(metricName string, options ...InstrumentOptions) (Gauge, error) {
+func (c OtelMetricProvider) GetGauge(metricName string, options ...InstrumentOptions) (Gauge, error) {
 	if metricName == "" {
 		return nil, errors.New("metric name is required")
 	}
@@ -192,15 +193,15 @@ func (c OtelClient) GetGauge(metricName string, options ...InstrumentOptions) (G
 	return newOtelGauge(metricName, gauge, c.tagCleaner, tags.AddTags(c.attrs, mergedOptions.Tags()...)...), nil
 }
 
-type OtelClientOption = func(*OtelClient)
+type OtelClientOption = func(*OtelMetricProvider)
 
-func NewOtelClient(ctx context.Context, opts ...OtelClientOption) (OtelClient, error) {
-	c := OtelClient{
+func NewOtelClient(ctx context.Context, opts ...OtelClientOption) (*OtelMetricProvider, error) {
+	c := &OtelMetricProvider{
 		config:         DefaultConfig,
 		warningHandler: warnings.DefaultWarningHandler(),
 	}
 	for _, opt := range opts {
-		opt(&c)
+		opt(c)
 	}
 
 	if c.meter == nil {
@@ -254,8 +255,32 @@ func newAdhocMeter(ctx context.Context, host string, port int) (metric.Meter, er
 }
 
 func WithConfig(config Config) OtelClientOption {
-	return func(c *OtelClient) {
+	return func(c *OtelMetricProvider) {
 		c.config = config
 		c.attrs = append(c.attrs, tags.ToAttributes(config.tags())...)
+	}
+}
+
+func WithMeter(meter metric.Meter) OtelClientOption {
+	return func(c *OtelMetricProvider) {
+		c.meter = meter
+	}
+}
+
+func WithWarningHandler(handler warnings.WarningHandler) OtelClientOption {
+	return func(c *OtelMetricProvider) {
+		c.warningHandler = handler
+	}
+}
+
+func WithTagCleaner(tagCleaner tags.TagCleaner) OtelClientOption {
+	return func(c *OtelMetricProvider) {
+		c.tagCleaner = tagCleaner
+	}
+}
+
+func WithAttributes(attrs ...attribute.KeyValue) OtelClientOption {
+	return func(c *OtelMetricProvider) {
+		c.attrs = append(c.attrs, attrs...)
 	}
 }

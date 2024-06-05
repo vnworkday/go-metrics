@@ -1,9 +1,10 @@
 package statuses
 
 import (
+	"testing"
+
 	"github.com/pkg/errors"
 	"github.com/vnworkday/go-metrics/internal/common"
-	"testing"
 )
 
 func TestStatusString(t *testing.T) {

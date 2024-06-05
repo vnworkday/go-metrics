@@ -2,6 +2,8 @@ package apimetrics
 
 import (
 	"context"
+	"time"
+
 	"github.com/vnworkday/go-metrics/internal/common"
 	"github.com/vnworkday/go-metrics/pkg/metrics"
 	"github.com/vnworkday/go-metrics/pkg/tags"
@@ -12,7 +14,7 @@ func collectParams[T any](opName string, options ...metrics.ExecOption[T]) metri
 	for _, option := range options {
 		option(&params)
 	}
-	params.Tags = append(params.Tags, tags.Op(opName))
+	params.Tags = append(params.Tags, tags.APIOp(opName))
 	return params
 }
 
@@ -29,7 +31,7 @@ func collectParams[T any](opName string, options ...metrics.ExecOption[T]) metri
 // @see DoRequestWithResponse for more details.
 func DoRequest(
 	ctx context.Context,
-	metric APIMetrics,
+	metric Client,
 	opName string,
 	makeRequestWoResponse func() error,
 	options ...metrics.ExecOption[any],
@@ -54,7 +56,7 @@ func DoRequest(
 // The statuses and error type are determined by the statusConverter and errTypeConverter functions passed in the options.
 func DoRequestWithResponse[T any](
 	ctx context.Context,
-	metric APIMetrics,
+	metric Client,
 	opName string,
 	makeRequest func() (T, error),
 	options ...metrics.ExecOption[T],
@@ -63,9 +65,9 @@ func DoRequestWithResponse[T any](
 
 	metric.GetRequestCounter().Add(ctx, 1, params.Tags...)
 
-	startTime := metric.UtcNow()
+	startTime := time.Now().UTC()
 	resp, err := makeRequest()
-	latency := metric.UtcNow().Sub(startTime)
+	latency := time.Now().UTC().Sub(startTime)
 
 	var metricTags []tags.Tag
 

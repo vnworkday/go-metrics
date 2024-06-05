@@ -3,7 +3,6 @@ package apimetrics
 import (
 	"github.com/vnworkday/go-metrics/pkg/metrics"
 	"github.com/vnworkday/go-metrics/pkg/tags"
-	"time"
 )
 
 const (
@@ -13,44 +12,46 @@ const (
 	APIRequestCounterDesc   = "API Request Counter"
 )
 
-type APIMetrics interface {
-	metrics.Metrics
+type Client interface {
+	GetLatencyHistogram() metrics.Histogram
 	GetRequestCounter() metrics.Counter
 }
 
-type Metric struct {
-	metrics.Client
-	name       string
+type client struct {
+	client     metrics.MetricProvider
 	latency    metrics.Histogram
 	reqCounter metrics.Counter
 	tags       []tags.Tag
 }
 
-func (m Metric) GetRequestCounter() metrics.Counter {
+func (m client) GetRequestCounter() metrics.Counter {
 	return m.reqCounter
 }
 
-func (m Metric) GetLatencyHistogram() metrics.Histogram {
+func (m client) GetLatencyHistogram() metrics.Histogram {
 	return m.latency
 }
 
-func (m Metric) UtcNow() time.Time {
-	return time.Now().UTC()
-}
+func New(apiName string, provider metrics.MetricProvider, options ...MetricOption) (Client, error) {
+	if apiName == "" {
+		return client{}, metrics.ErrMetricNameEmpty
+	}
 
-func New(name string, client metrics.Client, options ...MetricOption) (Metric, error) {
-	m := Metric{
-		Client: client,
-		name:   name,
+	if provider == nil {
+		return client{}, metrics.ErrMetricClientNotSpecified
+	}
+
+	m := client{
+		client: provider,
 	}
 
 	for _, option := range options {
 		option(&m)
 	}
 
-	m.tags = append(m.tags, tags.APIName(name))
+	m.tags = append(m.tags, tags.APIName(apiName))
 
-	latency, err := client.GetHistogram(
+	latency, err := provider.GetHistogram(
 		APIRequestHistogramName,
 		metrics.NewInstrumentOptions().
 			WithTags(m.tags...).
@@ -58,10 +59,10 @@ func New(name string, client metrics.Client, options ...MetricOption) (Metric, e
 	)
 
 	if err != nil {
-		return Metric{}, err
+		return client{}, err
 	}
 
-	reqCounter, err := client.GetCounter(
+	reqCounter, err := provider.GetCounter(
 		APIRequestCounterName,
 		metrics.NewInstrumentOptions().
 			WithTags(m.tags...).
@@ -69,7 +70,7 @@ func New(name string, client metrics.Client, options ...MetricOption) (Metric, e
 	)
 
 	if err != nil {
-		return Metric{}, err
+		return client{}, err
 	}
 
 	m.latency = latency
@@ -78,10 +79,10 @@ func New(name string, client metrics.Client, options ...MetricOption) (Metric, e
 	return m, nil
 }
 
-type MetricOption func(*Metric)
+type MetricOption func(*client)
 
 func WithMetricTags(tags ...tags.Tag) MetricOption {
-	return func(m *Metric) {
+	return func(m *client) {
 		m.tags = append(m.tags, tags...)
 	}
 }

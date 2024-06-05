@@ -1,9 +1,10 @@
 package metrics
 
 import (
-	"github.com/vnworkday/go-metrics/pkg/tags"
 	"reflect"
 	"testing"
+
+	"github.com/vnworkday/go-metrics/pkg/tags"
 )
 
 func TestConfigIsValid(t *testing.T) {

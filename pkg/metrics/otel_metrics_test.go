@@ -2,9 +2,10 @@ package metrics
 
 import (
 	"context"
+	"testing"
+
 	"github.com/vnworkday/go-metrics/pkg/tags"
 	"github.com/vnworkday/go-metrics/pkg/units"
-	"testing"
 )
 
 var c, _ = NewOtelClient(context.Background())
@@ -27,7 +28,7 @@ func TestOtelClient_RegisterMeter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := c.RegisterMeter(tt.metricName, nil, tt.options...)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("OtelClient.RegisterMeter() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("OtelMetricProvider.RegisterMeter() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -51,7 +52,7 @@ func TestOtelClient_GetCounter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := c.GetCounter(tt.metricName, tt.options...)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("OtelClient.GetCounter() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("OtelMetricProvider.GetCounter() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -75,7 +76,7 @@ func TestOtelClient_GetHistogram(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := c.GetHistogram(tt.metricName, tt.options...)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("OtelClient.GetHistogram() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("OtelMetricProvider.GetHistogram() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -99,7 +100,7 @@ func TestOtelClient_GetUpDownCounter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := c.GetUpDownCounter(tt.metricName, tt.options...)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("OtelClient.GetUpDownCounter() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("OtelMetricProvider.GetUpDownCounter() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -120,7 +121,7 @@ func TestOtelClient_GetGauge(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := c.GetGauge(tt.metricName, tt.options...)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("OtelClient.GetGauge() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("OtelMetricProvider.GetGauge() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

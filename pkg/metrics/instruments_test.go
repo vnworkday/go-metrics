@@ -1,9 +1,10 @@
 package metrics
 
 import (
+	"testing"
+
 	"github.com/vnworkday/go-metrics/pkg/tags"
 	"github.com/vnworkday/go-metrics/pkg/units"
-	"testing"
 )
 
 func TestInstrumentOptions_WithUnit(t *testing.T) {

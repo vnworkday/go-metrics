@@ -9,7 +9,6 @@ import "github.com/vnworkday/go-metrics/pkg/statuses"
 const (
 	TagService   = "service"
 	TagStatus    = "status"
-	TagOp        = "op"
 	TagErrorType = "error_type"
 )
 
@@ -21,11 +20,6 @@ func Service(name string) Tag {
 // Status creates a new tag with the key "api_status" and the given statuses as the value.
 func Status(status statuses.Status) Tag {
 	return NewTag(TagStatus, status.String())
-}
-
-// Op creates a new tag with the key "op" and the given operation name as the value.
-func Op(name string) Tag {
-	return NewTag(TagOp, name)
 }
 
 // ErrorType creates a new tag with the key "error_type" and the given error type as the value.
