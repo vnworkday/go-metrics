@@ -7,12 +7,14 @@ on:
     paths:
       - 'go.mod'
       - '**.go'
+      - '**.yml'
   push:
     branches:
       - main
     paths:
       - 'go.mod'
       - '**.go'
+      - '**.yml'
 jobs:
   test:
     name: Test on go ${{ matrix.go }} and ${{ matrix.os }}
