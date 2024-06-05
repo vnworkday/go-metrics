@@ -14,7 +14,7 @@ for exclude_package in "${exclude_packages[@]}"; do
     cmd+=" | grep -v ${exclude_package}"
 done
 
-cmd+=" | xargs go test -covermode=atomic -vet=all"
+cmd+=" | xargs go test -covermode=atomic -vet=all -coverprofile=profile.cov"
 
 eval "$cmd"
 

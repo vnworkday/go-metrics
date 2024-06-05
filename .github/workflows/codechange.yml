@@ -49,5 +49,15 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          flag-name: Go-${{ matrix.go }}-${{ matrix.os }}
+          path-to-profile: profile.cov
+          flag-name: Go-${{ matrix.go }}
           parallel: true
+  # notifies that all test jobs are finished.
+  # https://github.com/shogo82148/actions-goveralls
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shogo82148/actions-goveralls@v1.8.0
+        with:
+          parallel-finished: true
