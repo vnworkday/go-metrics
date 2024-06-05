@@ -1,0 +1,53 @@
+name: On-Code-Change
+on:
+  pull_request:
+    branches:
+      - main
+    types: [ opened, synchronize, reopened ]
+    paths:
+      - 'go.mod'
+      - '**.go'
+  push:
+    branches:
+      - main
+    paths:
+      - 'go.mod'
+      - '**.go'
+jobs:
+  test:
+    name: Test on go ${{ matrix.go }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        go: [ 1.22 ]
+        os: [ ubuntu-latest, windows-latest ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Go ${{ matrix.go }}
+        uses: actions/setup-go@v5.0.1
+        timeout-minutes: 2
+        with:
+          go-version: ${{ matrix.go }}
+      - name: Lint with Revive
+        uses: morphy2k/revive-action@v2.5.7
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+      - name: Static Check
+        uses: reviewdog/action-staticcheck@v1.14.0
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          filter_mode: added
+          fail_on_error: false
+      - name: Security Scan
+        uses: securego/gosec@v2.8.2
+      - name: Unit Test
+        run: make test
+      - name: Send Coverage
+        uses: shogo82148/actions-goveralls@v1.8.0
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: Go-${{ matrix.go }}-${{ matrix.os }}
+          parallel: true
