@@ -32,6 +32,13 @@ func DefaultConverter[T any](_ T, err error) Status {
 	return Success
 }
 
+func DefaultConverterWithoutResponse(err error) Status {
+	if err != nil {
+		return ClientError
+	}
+	return Success
+}
+
 // DefaultHTTPStatusCodeConverter is an implementation of the StatusConverter interface that returns a statuses based on the HTTP statuses code.
 func DefaultHTTPStatusCodeConverter(statusCode int, _ error) Status {
 	if statusCode >= 200 && statusCode < 300 {

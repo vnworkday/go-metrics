@@ -16,6 +16,6 @@ func ToOtelUnit(metric string, unit Unit) (string, error) {
 	case Millis:
 		return "ms", nil
 	default:
-		return "", ErrUnitInvalid{}
+		return "", ErrUnitInvalid
 	}
 }

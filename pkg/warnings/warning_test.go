@@ -1,10 +1,10 @@
 package warnings
 
 import (
+	"github.com/vnworkday/go-metrics/internal/common"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/vnworkday/go-metrics/internal/tests"
 )
 
 func TestNewWarning(t *testing.T) {
@@ -46,5 +46,5 @@ func TestString(t *testing.T) {
 		addTag("tag2", "value2").
 		addTag("tag3", "value3")
 	expected := `metric="metric1" message="message1" label_name="tag1" label_value="value1" label_name="tag2" label_value="value2" label_name="tag3" label_value="value3"`
-	assertThat.True(tests.MapsEqual(tests.StringToMap(expected), tests.StringToMap(w.String())))
+	assertThat.True(common.StringToSet(expected, " ").Equals(common.StringToSet(w.String(), " ")))
 }

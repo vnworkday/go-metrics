@@ -17,7 +17,7 @@ func TestInvalidUnitReturnsFalse(t *testing.T) {
 }
 
 func TestErrUnitInvalidReturnsCorrectMessage(t *testing.T) {
-	err := ErrUnitInvalid{}
+	err := ErrUnitInvalid
 	if err.Error() != "invalid unit" {
 		t.Errorf("ErrUnitInvalid should return 'invalid unit'")
 	}

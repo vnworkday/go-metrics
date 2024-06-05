@@ -1,5 +1,7 @@
 package common
 
+import "strings"
+
 type Set[T comparable] struct {
 	set map[T]struct{}
 }
@@ -46,4 +48,31 @@ func (s Set[T]) Values() []T {
 	}
 
 	return values
+}
+
+func (s Set[T]) Equals(other Set[T]) bool {
+	if s.Len() != other.Len() {
+		return false
+	}
+
+	for value := range s.set {
+		if !other.Contains(value) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func StringToSet(str, sep string) Set[string] {
+	m := make(map[string]struct{})
+	parts := strings.Split(str, sep)
+	for i := 0; i < len(parts); i++ {
+		if parts[i] == "" {
+			continue
+		}
+
+		m[parts[i]] = struct{}{}
+	}
+	return Set[string]{set: m}
 }

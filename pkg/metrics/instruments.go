@@ -1,7 +1,6 @@
 package metrics
 
 import (
-	"github.com/pkg/errors"
 	"github.com/vnworkday/go-metrics/pkg/tags"
 	"github.com/vnworkday/go-metrics/pkg/units"
 )
@@ -55,9 +54,17 @@ func (io InstrumentOptions) WithDesc(desc string) InstrumentOptions {
 }
 
 // MergeInstrumentOptions merges multiple InstrumentOptions into a single InstrumentOptions.
-// If more than one unit is specified, an error is returned.
+// If more than one unit or no unit is specified, an error is returned.
 // If more than one description is specified, the last one is used.
 func MergeInstrumentOptions(options ...InstrumentOptions) (InstrumentOptions, error) {
+	if len(options) == 0 {
+		return InstrumentOptions{
+			unit: units.Dimensionless,
+			tags: []tags.Tag{},
+			desc: "no description specified",
+		}, nil
+	}
+
 	var tagLst []tags.Tag
 	var unit units.Unit
 	var desc string
@@ -67,12 +74,13 @@ func MergeInstrumentOptions(options ...InstrumentOptions) (InstrumentOptions, er
 		desc = option.Desc()
 		if option.Unit() != unit {
 			if unit != "" {
-				return InstrumentOptions{}, errors.New("more than one unit specified")
+				return InstrumentOptions{}, ErrMultipleUnitsSpecified
 			} else {
 				unit = option.Unit()
 			}
 		}
 	}
+
 	return InstrumentOptions{
 		unit: unit,
 		tags: tagLst,

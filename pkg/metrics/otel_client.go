@@ -13,7 +13,6 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/metric/noop"
 	otelmetric "go.opentelemetry.io/otel/sdk/metric"
 )
 
@@ -26,6 +25,10 @@ type OtelClient struct {
 }
 
 func (c OtelClient) RegisterMeter(metricName string, meter Meter, options ...InstrumentOptions) (Unregister, error) {
+	if metricName == "" {
+		return nil, errors.New("metric name is required")
+	}
+
 	mergeOption, err := MergeInstrumentOptions(options...)
 
 	if err != nil {
@@ -36,6 +39,7 @@ func (c OtelClient) RegisterMeter(metricName string, meter Meter, options ...Ins
 
 	if err != nil {
 		c.warningHandler(warnings.UnitInvalid(metricName, string(mergeOption.Unit())))
+		return nil, errors.Wrapf(err, "failed to convert unit for metric %s", metricName)
 	}
 
 	gauge, err := c.meter.Int64ObservableGauge(
@@ -66,6 +70,10 @@ func (c OtelClient) RegisterMeter(metricName string, meter Meter, options ...Ins
 }
 
 func (c OtelClient) GetCounter(metricName string, options ...InstrumentOptions) (Counter, error) {
+	if metricName == "" {
+		return nil, errors.New("metric name is required")
+	}
+
 	mergedOptions, err := MergeInstrumentOptions(options...)
 
 	if err != nil {
@@ -76,6 +84,7 @@ func (c OtelClient) GetCounter(metricName string, options ...InstrumentOptions) 
 
 	if err != nil {
 		c.warningHandler(warnings.UnitInvalid(metricName, string(mergedOptions.Unit())))
+		return nil, errors.Wrapf(err, "failed to convert unit for metric %s", metricName)
 	}
 
 	counter, err := c.meter.Int64Counter(
@@ -92,6 +101,10 @@ func (c OtelClient) GetCounter(metricName string, options ...InstrumentOptions) 
 }
 
 func (c OtelClient) GetHistogram(metricName string, options ...InstrumentOptions) (Histogram, error) {
+	if metricName == "" {
+		return nil, errors.New("metric name is required")
+	}
+
 	mergedOptions, err := MergeInstrumentOptions(options...)
 
 	if err != nil {
@@ -102,6 +115,7 @@ func (c OtelClient) GetHistogram(metricName string, options ...InstrumentOptions
 
 	if err != nil {
 		c.warningHandler(warnings.UnitInvalid(metricName, string(mergedOptions.Unit())))
+		return nil, errors.Wrapf(err, "failed to convert unit for metric %s", metricName)
 	}
 
 	histogram, err := c.meter.Int64Histogram(
@@ -118,6 +132,10 @@ func (c OtelClient) GetHistogram(metricName string, options ...InstrumentOptions
 }
 
 func (c OtelClient) GetUpDownCounter(metricName string, options ...InstrumentOptions) (UpDownCounter, error) {
+	if metricName == "" {
+		return nil, errors.New("metric name is required")
+	}
+
 	mergedOptions, err := MergeInstrumentOptions(options...)
 
 	if err != nil {
@@ -128,6 +146,7 @@ func (c OtelClient) GetUpDownCounter(metricName string, options ...InstrumentOpt
 
 	if err != nil {
 		c.warningHandler(warnings.UnitInvalid(metricName, string(mergedOptions.Unit())))
+		return nil, errors.Wrapf(err, "failed to convert unit for metric %s", metricName)
 	}
 
 	upDownCounter, err := c.meter.Int64UpDownCounter(
@@ -144,6 +163,10 @@ func (c OtelClient) GetUpDownCounter(metricName string, options ...InstrumentOpt
 }
 
 func (c OtelClient) GetGauge(metricName string, options ...InstrumentOptions) (Gauge, error) {
+	if metricName == "" {
+		return nil, errors.New("metric name is required")
+	}
+
 	mergedOptions, err := MergeInstrumentOptions(options...)
 
 	if err != nil {
@@ -170,13 +193,6 @@ func (c OtelClient) GetGauge(metricName string, options ...InstrumentOptions) (G
 }
 
 type OtelClientOption = func(*OtelClient)
-
-// Noop causes all functions to be no-ops and return nil errors.
-func Noop() OtelClientOption {
-	return func(c *OtelClient) {
-		c.meter = noop.Meter{}
-	}
-}
 
 func NewOtelClient(ctx context.Context, opts ...OtelClientOption) (OtelClient, error) {
 	c := OtelClient{

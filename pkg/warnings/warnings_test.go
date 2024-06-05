@@ -1,10 +1,10 @@
 package warnings
 
 import (
+	"github.com/vnworkday/go-metrics/internal/common"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	testutil "github.com/vnworkday/go-metrics/internal/tests"
 )
 
 func TestWarning(t *testing.T) {
@@ -64,7 +64,7 @@ func TestWarning(t *testing.T) {
 			case "Tags":
 				assertThat.Equal(tt.expected, tt.warning.Tags()["tag1"])
 			case "String":
-				assertThat.True(testutil.MapsEqual(testutil.StringToMap(tt.expected), testutil.StringToMap(tt.warning.String())))
+				assertThat.True(common.StringToSet(tt.expected, " ").Equals(common.StringToSet(tt.warning.String(), " ")))
 			}
 		})
 	}

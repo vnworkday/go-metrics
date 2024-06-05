@@ -79,3 +79,99 @@ func TestSetIsNotEmptyWithValues(t *testing.T) {
 		t.Errorf("Set should not be empty when it contains elements")
 	}
 }
+
+func TestSetEquals(t *testing.T) {
+	tests := []struct {
+		name string
+		s1   Set[int]
+		s2   Set[int]
+		want bool
+	}{
+		{
+			"EqualSets",
+			NewSet[int](1, 2, 3),
+			NewSet[int](1, 2, 3),
+			true,
+		},
+		{
+			"DifferentSets",
+			NewSet[int](1, 2, 3),
+			NewSet[int](4, 5, 6),
+			false,
+		},
+		{
+			"EmptySetAndNonEmptySet",
+			NewSet[int](),
+			NewSet[int](1, 2, 3),
+			false,
+		},
+		{
+			"TwoEmptySets",
+			NewSet[int](),
+			NewSet[int](),
+			true,
+		},
+		{
+			"SetWithExtraElements",
+			NewSet[int](1, 2, 3),
+			NewSet[int](1, 2, 3, 4),
+			false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.s1.Equals(tt.s2); got != tt.want {
+				t.Errorf("Set.Equals() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestStringToSet(t *testing.T) {
+	tests := []struct {
+		name string
+		str  string
+		sep  string
+		want Set[string]
+	}{
+		{
+			"EmptyString",
+			"",
+			",",
+			NewSet[string](),
+		},
+		{
+			"SingleElement",
+			"element",
+			",",
+			NewSet[string]("element"),
+		},
+		{
+			"MultipleElements",
+			"element1,element2,element3",
+			",",
+			NewSet[string]("element1", "element2", "element3"),
+		},
+		{
+			"MultipleElementsWithSpaces",
+			"element1, element2, element3",
+			",",
+			NewSet[string]("element1", " element2", " element3"),
+		},
+		{
+			"DifferentSeparator",
+			"element1;element2;element3",
+			";",
+			NewSet[string]("element1", "element2", "element3"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := StringToSet(tt.str, tt.sep); !got.Equals(tt.want) {
+				t.Errorf("StringToSet() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

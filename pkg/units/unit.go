@@ -1,5 +1,7 @@
 package units
 
+import "github.com/pkg/errors"
+
 type Unit string
 
 const (
@@ -17,8 +19,4 @@ func (u Unit) Valid() bool {
 	}
 }
 
-type ErrUnitInvalid struct{}
-
-func (ErrUnitInvalid) Error() string {
-	return "invalid unit"
-}
+var ErrUnitInvalid = errors.New("invalid unit")
