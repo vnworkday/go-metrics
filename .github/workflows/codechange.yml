@@ -1,4 +1,4 @@
-name: On-Code-Change
+name: Code Change Checker
 on:
   pull_request:
     branches:
@@ -41,7 +41,7 @@ jobs:
           filter_mode: added
           fail_on_error: false
       - name: Security Scan
-        uses: securego/gosec@v2.8.2
+        uses: securego/gosec@v2.18.2
       - name: Unit Test
         run: make test
       - name: Send Coverage
