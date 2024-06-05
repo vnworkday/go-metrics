@@ -33,6 +33,14 @@ func (m client) GetMessageCounter() metrics.Counter {
 }
 
 func New(queueName string, provider metrics.MetricProvider, options ...MetricOption) (Client, error) {
+	if queueName == "" {
+		return client{}, metrics.ErrQueueNameNotSpecified
+	}
+
+	if provider == nil {
+		return client{}, metrics.ErrMetricClientNotSpecified
+	}
+
 	m := client{
 		client: provider,
 	}

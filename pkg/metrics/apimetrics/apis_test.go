@@ -8,7 +8,7 @@ import (
 	"github.com/vnworkday/go-metrics/internal/mocks"
 )
 
-var mockClient = mocks.NewMockAPIMetricClients()
+var mockClient = mocks.NewMockAPIMetricClient()
 
 func TestDoRequest(t *testing.T) {
 	okRequest := func() error {
@@ -19,11 +19,11 @@ func TestDoRequest(t *testing.T) {
 	}
 
 	tests := []struct {
-		name        string
-		metric      Client
-		opName      string
-		makeRequest func() error
-		wantErr     bool
+		name         string
+		metricClient Client
+		opName       string
+		makeRequest  func() error
+		wantErr      bool
 	}{
 		{"Valid", mockClient, "valid", okRequest, false},
 		{"WithNokRequestShouldFail", mockClient, "valid", nokRequest, true},
@@ -31,7 +31,7 @@ func TestDoRequest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := DoRequest(context.Background(), tt.metric, tt.opName, tt.makeRequest)
+			err := DoRequest(context.Background(), tt.metricClient, tt.opName, tt.makeRequest)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DoRequest() error = %v, wantErr %v", err, tt.wantErr)
@@ -49,11 +49,11 @@ func TestDoRequestWithResponse(t *testing.T) {
 	}
 
 	tests := []struct {
-		name        string
-		metric      Client
-		opName      string
-		makeRequest func() (interface{}, error)
-		wantErr     bool
+		name         string
+		metricClient Client
+		opName       string
+		makeRequest  func() (interface{}, error)
+		wantErr      bool
 	}{
 		{"Valid", mockClient, "valid", okRequest, false},
 		{"WithNokRequestShouldFail", mockClient, "valid", nokRequest, true},
@@ -61,7 +61,7 @@ func TestDoRequestWithResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := DoRequestWithResponse(context.Background(), tt.metric, tt.opName, tt.makeRequest)
+			_, err := DoRequestWithResponse(context.Background(), tt.metricClient, tt.opName, tt.makeRequest)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DoRequestWithResponse() error = %v, wantErr %v", err, tt.wantErr)

@@ -34,7 +34,7 @@ func (m client) GetLatencyHistogram() metrics.Histogram {
 
 func New(apiName string, provider metrics.MetricProvider, options ...MetricOption) (Client, error) {
 	if apiName == "" {
-		return client{}, metrics.ErrMetricNameEmpty
+		return client{}, metrics.ErrAPINameNotSpecified
 	}
 
 	if provider == nil {

@@ -4,7 +4,19 @@ set -euo pipefail
 
 echo "🏁 Running unit tests..."
 
-go test ./... -covermode=count
+exclude_packages=(
+    "internal/mocks"
+)
+
+cmd="go list ./..."
+
+for exclude_package in "${exclude_packages[@]}"; do
+    cmd+=" | grep -v ${exclude_package}"
+done
+
+cmd+=" | xargs go test -covermode=atomic -vet=all"
+
+eval "$cmd"
 
 echo "✅ All unit tests passed."
 exit 0
