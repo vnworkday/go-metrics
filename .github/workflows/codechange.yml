@@ -39,11 +39,12 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
+          reporter: github-check
           filter_mode: added
           fail_on_error: false
       - name: Security Scan
         uses: securego/gosec@v2.18.2
+        if: ${{ matrix.os == 'ubuntu-latest' }}
       - name: Unit Test
         run: make test
       - name: Send Coverage
