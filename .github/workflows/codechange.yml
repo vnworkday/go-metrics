@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         go: [ 1.22 ]
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-latest, windows-latest ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,7 +46,7 @@ jobs:
         uses: securego/gosec@v2.18.2
         if: ${{ matrix.os == 'ubuntu-latest' }}
       - name: Unit Test
-        run: make test
+        run: go test ./... -covermode=atomic -vet=all -coverprofile=profile.cov
       - name: Send Coverage
         uses: shogo82148/actions-goveralls@v1.8.0
         if: ${{ matrix.os == 'ubuntu-latest' }}
