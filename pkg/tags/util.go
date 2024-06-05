@@ -11,7 +11,7 @@ func FromAttribute(attr attribute.KeyValue) Tag {
 }
 
 func ToAttributes(tags []Tag) []attribute.KeyValue {
-	attrs := make([]attribute.KeyValue, 0, len(tags))
+	attrs := make([]attribute.KeyValue, len(tags))
 	for i, tag := range tags {
 		attrs[i] = ToAttribute(tag)
 	}
@@ -19,7 +19,7 @@ func ToAttributes(tags []Tag) []attribute.KeyValue {
 }
 
 func ToTags(attrs []attribute.KeyValue) []Tag {
-	tags := make([]Tag, 0, len(attrs))
+	tags := make([]Tag, len(attrs))
 	for i, attr := range attrs {
 		tags[i] = FromAttribute(attr)
 	}

@@ -20,6 +20,10 @@ info:
 generate:
 	@go generate ./...
 
+## test: Run tests using go test with coverage report
+test:
+	@go test ./... -covermode=count
+
 ## staticcheck: Run static check using honnef.co/go/tools/cmd/staticcheck
 staticcheck:
 	@"$(CURDIR)/scripts/static-check.sh"
@@ -39,6 +43,8 @@ pre-commit:
 	@make importcheck
 	@echo "--------------------------------------------------------------------------------"
 	@make fmtcheck
+	@echo "--------------------------------------------------------------------------------"
+	@make test
 
 .NOTPARALLEL:
 
