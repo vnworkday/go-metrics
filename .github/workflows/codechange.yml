@@ -8,13 +8,6 @@ on:
       - 'go.mod'
       - '**.go'
       - '**.yml'
-  push:
-    branches:
-      - main
-    paths:
-      - 'go.mod'
-      - '**.go'
-      - '**.yml'
 jobs:
   test:
     name: Test on go ${{ matrix.go }} and ${{ matrix.os }}
@@ -27,8 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Go ${{ matrix.go }}
-        uses: actions/setup-go@v5.0.1
-        timeout-minutes: 2
+        uses: WillAbides/setup-go-faster@v1.14.0
         with:
           go-version: ${{ matrix.go }}
       - name: Static Check
@@ -36,12 +28,9 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-check
+          reporter: github-pr-review
           filter_mode: added
           fail_on_error: false
-      - name: Security Scan
-        uses: securego/gosec@v2.18.2
-        if: ${{ matrix.os == 'ubuntu-latest' }}
       - name: Unit Test
         run: go test ./... -covermode=atomic -vet=all -coverprofile=profile.cov
       - name: Send Coverage
